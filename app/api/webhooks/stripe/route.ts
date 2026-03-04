@@ -2,15 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
-// Use service role key so webhook can write orders bypassing RLS
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function POST(req: NextRequest) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  // Use service role key so webhook can write orders bypassing RLS
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
   const body = await req.text();
   const sig = req.headers.get('stripe-signature');
 
@@ -28,13 +26,14 @@ export async function POST(req: NextRequest) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
-    await handleCheckoutComplete(session);
+    await handleCheckoutComplete(session, supabaseAdmin);
   }
 
   return NextResponse.json({ received: true });
 }
 
-async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function handleCheckoutComplete(session: Stripe.Checkout.Session, supabaseAdmin: any) {
   const totalCents = session.amount_total ?? 0;
   const userId = session.client_reference_id ?? null;
   const rawItems = session.metadata?.items;

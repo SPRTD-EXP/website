@@ -10,8 +10,8 @@ import Navbar from './components/Navbar';
 
 function ChevronDown() {
   return (
-    <svg width="14" height="8" viewBox="0 0 14 8" fill="none">
-      <path d="M1 1l6 6 6-6" stroke="#f5f0e8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="12" height="7" viewBox="0 0 14 8" fill="none">
+      <path d="M1 1l6 6 6-6" stroke="#f5f0e8" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -53,7 +53,6 @@ function DiscordIcon() {
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Home() {
-  const [videoEnded, setVideoEnded] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [introGone, setIntroGone] = useState(false);
 
@@ -62,12 +61,9 @@ export default function Home() {
       duration: 1.4,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     });
-
     lenis.on('scroll', () => ScrollTrigger.update());
-
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
-
     return () => {
       lenis.destroy();
       gsap.ticker.remove((time) => lenis.raf(time * 1000));
@@ -99,100 +95,64 @@ export default function Home() {
 
       <Navbar animated />
 
-      {/* Hero Section */}
-      <section className="relative flex flex-col items-center justify-center min-h-screen pt-14 px-4 overflow-hidden">
+      {/* Hero — full-bleed */}
+      <section className="relative h-screen overflow-hidden">
 
-        {/* Single background image filling entire section — shared source for both inner and outer */}
-        <div className="absolute inset-0 pointer-events-none">
-          <Image
-            src="/goldBG.png"
-            alt=""
-            fill
-            style={{ objectFit: 'cover', objectPosition: 'center', opacity: 0.48 }}
-            priority
-          />
-        </div>
-
-        {/* Bordered hero frame — box-shadow dims the surrounding area to ~6% effective opacity */}
-        <div
-          className="relative w-full max-w-[1064px]"
-          style={mounted
-            ? { aspectRatio: '16 / 9', border: '3px solid #2a2a2a', boxShadow: '0 0 0 200vmax rgba(17,17,17,0.88)', animation: 'fadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.6s both' }
-            : { aspectRatio: '16 / 9', border: '3px solid #2a2a2a', boxShadow: '0 0 0 200vmax rgba(17,17,17,0.88)', opacity: 0 }
-          }
+        {/* Video — full bleed */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center',
+            opacity: 0.7,
+            filter: 'grayscale(1) sepia(0.9) saturate(1.3)',
+          }}
         >
-          {/* Dark base — keeps frame black while video plays, fades out after */}
-          <div
-            className="absolute inset-0 bg-[#111] transition-opacity duration-1000 overflow-hidden"
-            style={{ opacity: videoEnded ? 0 : 1 }}
-          />
+          <source src="/FINAL KICK_3 (online-video-cutter.com).mp4" type="video/mp4" />
+        </video>
 
-          {/* Video — plays inside frame, fades out on end revealing section bg through transparent frame */}
-          <video
-            autoPlay
-            muted
-            playsInline
-            onEnded={() => setVideoEnded(true)}
-            className="transition-opacity duration-1000"
+        {/* Subtle dark vignette at bottom */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-48 pointer-events-none"
+          style={{ background: 'linear-gradient(to top, rgba(17,17,17,0.55) 0%, transparent 100%)' }}
+        />
+
+        {/* Bottom center — discover button + arrow */}
+        <div
+          className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-4"
+          style={{
+            bottom: '48px',
+            ...(mounted
+              ? { animation: 'fadeInUp 0.8s cubic-bezier(0.16,1,0.3,1) 2.0s both' }
+              : { opacity: 0 }),
+          }}
+        >
+          <Link
+            href="/shop"
+            className="uppercase tracking-[0.22em] transition-all duration-300 hover:bg-white/10"
             style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center',
-              opacity: videoEnded ? 0 : 0.48,
-              filter: 'grayscale(1) sepia(0.9) saturate(1.3)',
+              fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+              fontWeight: 300,
+              fontSize: '10px',
+              color: '#f5f0e8',
+              border: '1px solid rgba(245,240,232,0.55)',
+              padding: '11px 28px',
+              letterSpacing: '0.22em',
             }}
           >
-            <source src="/FINAL KICK_3 (online-video-cutter.com).mp4" type="video/mp4" />
-          </video>
+            DISCOVER PRESEASON
+          </Link>
 
-          {/* Event overlay — bottom left, hidden until video ends then animates in */}
-          <div
-            className="absolute bottom-6 left-8"
-            style={videoEnded ? { animation: 'fadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) both' } : { opacity: 0 }}
-          >
-            <p
-              className="text-[#fff3af] uppercase tracking-[2px] leading-tight"
-              style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: '28px' }}
-            >
-              S1 APRIL 2026
-            </p>
-            <p
-              className="text-[#f5f0e8] uppercase tracking-widest mt-1"
-              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: '11px' }}
-            >
-              EVENTS + QIMAH INTRODUCTION
-            </p>
-          </div>
-
-          {/* Chevron — inside frame, bottom center */}
-          <div
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10"
-            style={mounted ? { animation: 'fadeIn 0.5s ease-out 2.1s both' } : { opacity: 0 }}
-          >
-            <ChevronDown />
-          </div>
+          <ChevronDown />
         </div>
 
-        {/* Main tagline — clip reveal */}
-        <div style={{ overflow: 'hidden', marginTop: '1.5rem' }}>
-          <h1
-            className="text-[#fff3af] text-center uppercase tracking-[6px]"
-            style={{
-              fontFamily: 'Helvetica, Arial, sans-serif',
-              fontWeight: 700,
-              fontSize: 'clamp(36px, 5vw, 60px)',
-              textShadow: '6px 6px 3.8px rgba(0,0,0,0.25)',
-              ...(mounted
-                ? { animation: 'slideUpReveal 1s cubic-bezier(0.16, 1, 0.3, 1) 1.9s both' }
-                : { transform: 'translateY(105%)' }),
-            }}
-          >
-            EARNED. NOT GIVEN.
-          </h1>
-        </div>
       </section>
 
       {/* Mission Section */}
@@ -229,38 +189,17 @@ export default function Home() {
             POLICIES
           </Link>
 
-          {/* Social icons */}
           <div className="flex items-center gap-5">
-            <a
-              href="https://instagram.com/sprtd.co"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#f5f0e8] hover:text-[#fff3af] transition-colors"
-            >
+            <a href="https://instagram.com/sprtd.co" target="_blank" rel="noopener noreferrer" className="text-[#f5f0e8] hover:text-[#fff3af] transition-colors">
               <InstagramIcon />
             </a>
-            <a
-              href="https://tiktok.com/@sprtd.co"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#f5f0e8] hover:text-[#fff3af] transition-colors"
-            >
+            <a href="https://tiktok.com/@sprtd.co" target="_blank" rel="noopener noreferrer" className="text-[#f5f0e8] hover:text-[#fff3af] transition-colors">
               <TikTokIcon />
             </a>
-            <a
-              href="https://www.youtube.com/@SPRTD.LIVE3"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#f5f0e8] hover:text-[#fff3af] transition-colors"
-            >
+            <a href="https://www.youtube.com/@SPRTD.LIVE3" target="_blank" rel="noopener noreferrer" className="text-[#f5f0e8] hover:text-[#fff3af] transition-colors">
               <YouTubeIcon />
             </a>
-            <a
-              href="https://discord.gg/sprtd"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#f5f0e8] hover:text-[#fff3af] transition-colors"
-            >
+            <a href="https://discord.gg/sprtd" target="_blank" rel="noopener noreferrer" className="text-[#f5f0e8] hover:text-[#fff3af] transition-colors">
               <DiscordIcon />
             </a>
           </div>

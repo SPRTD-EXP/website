@@ -4,6 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 
 function CartIcon() {
   return (
@@ -15,16 +17,17 @@ function CartIcon() {
   );
 }
 
-const navLinks = [
-  { href: '/movement', label: 'MOVEMENT', side: 'left' },
-  { href: '/shop',     label: 'SHOP',     side: 'left' },
-  { href: '/about',    label: 'ABOUT',    side: 'right' },
-  { href: '/apps',     label: 'APPS',     side: 'right' },
-  { href: '/login',    label: 'LOGIN',    side: 'right' },
+const leftLinks = [
+  { href: '/movement', label: 'MOVEMENT' },
+  { href: '/shop',     label: 'SHOP' },
+] as const;
+
+const rightLinks = [
+  { href: '/about', label: 'ABOUT' },
+  { href: '/apps',  label: 'APPS' },
 ] as const;
 
 type NavbarProps = {
-  /** Pass true on the homepage to delay the fade-in until after the intro overlay */
   animated?: boolean;
 };
 
@@ -32,6 +35,8 @@ export default function Navbar({ animated = false }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const { user } = useAuth();
+  const { itemCount } = useCart();
 
   useEffect(() => {
     setMounted(true);
@@ -44,6 +49,11 @@ export default function Navbar({ animated = false }: NavbarProps) {
     ? (mounted ? { animation: 'fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.4s both' } : { opacity: 0 })
     : undefined;
 
+  const linkClass = (href: string) =>
+    `text-[10.5px] tracking-[0.18em] uppercase transition-colors ${
+      pathname === href ? 'text-[#fff3af]' : 'text-[#f5f0e8] hover:text-[#fff3af]'
+    }`;
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 h-14 border-b border-[#1e1e1e] transition-colors duration-300 ${
@@ -54,13 +64,11 @@ export default function Navbar({ animated = false }: NavbarProps) {
       <div className="relative flex items-center h-full px-10">
         {/* Left links */}
         <div className="flex flex-1 items-center gap-9">
-          {navLinks.filter(l => l.side === 'left').map(l => (
+          {leftLinks.map(l => (
             <Link
               key={l.href}
               href={l.href}
-              className={`text-[10.5px] tracking-[0.18em] uppercase transition-colors ${
-                pathname === l.href ? 'text-[#fff3af]' : 'text-[#f5f0e8] hover:text-[#fff3af]'
-              }`}
+              className={linkClass(l.href)}
               style={{ fontFamily: 'var(--font-montserrat), sans-serif', fontWeight: 300 }}
             >
               {l.label}
@@ -75,20 +83,37 @@ export default function Navbar({ animated = false }: NavbarProps) {
 
         {/* Right links */}
         <div className="flex flex-1 items-center justify-end gap-9">
-          {navLinks.filter(l => l.side === 'right').map(l => (
+          {rightLinks.map(l => (
             <Link
               key={l.href}
               href={l.href}
-              className={`text-[10.5px] tracking-[0.18em] uppercase transition-colors ${
-                pathname === l.href ? 'text-[#fff3af]' : 'text-[#f5f0e8] hover:text-[#fff3af]'
-              }`}
+              className={linkClass(l.href)}
               style={{ fontFamily: 'var(--font-montserrat), sans-serif', fontWeight: 300 }}
             >
               {l.label}
             </Link>
           ))}
-          <Link href="/cart" className="text-[#f5f0e8] hover:text-[#fff3af] transition-colors ml-1">
+
+          {/* Login / Account */}
+          <Link
+            href={user ? '/account' : '/login'}
+            className={linkClass(user ? '/account' : '/login')}
+            style={{ fontFamily: 'var(--font-montserrat), sans-serif', fontWeight: 300 }}
+          >
+            {user ? 'ACCOUNT' : 'LOGIN'}
+          </Link>
+
+          {/* Cart icon with badge */}
+          <Link href="/cart" className="relative text-[#f5f0e8] hover:text-[#fff3af] transition-colors ml-1">
             <CartIcon />
+            {itemCount > 0 && (
+              <span
+                className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-[#fff3af] text-[#111]"
+                style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: '8px' }}
+              >
+                {itemCount > 9 ? '9+' : itemCount}
+              </span>
+            )}
           </Link>
         </div>
       </div>

@@ -9,7 +9,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navbar from '../../components/Navbar';
 import { supabase } from '../../lib/supabase';
-import { type Product, formatPrice } from '../../lib/products';
+import { type Product, type Colorway, COLORWAYS, formatPrice } from '../../lib/products';
 import { useCart } from '../../context/CartContext';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -19,6 +19,8 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
   const [product, setProduct] = useState<Product | null>(null);
   const [notFoundState, setNotFoundState] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [selectedColorway, setSelectedColorway] = useState<Colorway>('black');
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [addedFeedback, setAddedFeedback] = useState(false);
   const [sizeError, setSizeError] = useState(false);
   const { addItem } = useCart();
@@ -33,6 +35,14 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
   useEffect(() => {
     if (notFoundState) notFound();
   }, [notFoundState]);
+
+  // Fetch images when product or colorway changes
+  useEffect(() => {
+    if (!product) return;
+    fetch(`/api/product-images?product=${encodeURIComponent(product.name)}&colorway=${encodeURIComponent(selectedColorway)}`)
+      .then(r => r.json())
+      .then(({ urls }) => setImageUrls(urls ?? []));
+  }, [product, selectedColorway]);
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -50,7 +60,6 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
 
   useEffect(() => {
     if (!product) return;
-    gsap.fromTo('.product-img', { opacity: 0 }, { opacity: 1, duration: 0.9, stagger: 0.12, ease: 'power2.out', delay: 0.1, clearProps: 'all' });
     gsap.fromTo('.product-info', { opacity: 0 }, { opacity: 1, duration: 0.9, ease: 'power2.out', delay: 0.25, clearProps: 'all' });
   }, [product]);
 
@@ -73,24 +82,24 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
 
         {/* Left — stacked image gallery */}
         <div className="border-r border-[#2a2a2a]">
-          {product.image_urls.length > 0 ? (
-            product.image_urls.map((url, i) => (
+          {imageUrls.length > 0 ? (
+            imageUrls.map((url, i) => (
               <div
-                key={i}
-                className={`product-img relative w-full aspect-[3/4]${i < product.image_urls.length - 1 ? ' border-b border-[#2a2a2a]' : ''}`}
+                key={url}
+                className={`relative w-full aspect-[3/4]${i < imageUrls.length - 1 ? ' border-b border-[#2a2a2a]' : ''}`}
               >
-                <Image src={url} alt={`${product.name} — view ${i + 1}`} fill style={{ objectFit: 'cover' }} />
+                <Image src={url} alt={`${product.name} ${selectedColorway} — view ${i + 1}`} fill unoptimized style={{ objectFit: 'cover' }} />
               </div>
             ))
           ) : (
-            <div className="product-img relative w-full aspect-[3/4] bg-[#1a1a1a] flex items-center justify-center">
+            <div className="relative w-full aspect-[3/4] bg-[#1a1a1a] flex items-center justify-center">
               <Image src="/logoWeb.svg" alt="" width={72} height={72} style={{ opacity: 0.12 }} />
             </div>
           )}
         </div>
 
         {/* Right — info panel (sticky) */}
-        <div className="product-info flex flex-col px-12 pt-16 pb-16 border-t border-[#2a2a2a] lg:border-t-0 lg:sticky lg:top-14 lg:h-[calc(100vh-3.5rem)] lg:overflow-y-auto">
+        <div className="product-info flex flex-col px-6 pt-8 pb-12 md:px-12 md:pt-16 md:pb-16 border-t border-[#2a2a2a] lg:border-t-0 lg:sticky lg:top-14 lg:h-[calc(100vh-3.5rem)] lg:overflow-y-auto">
 
           {/* Breadcrumb */}
           <Link
@@ -116,6 +125,34 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
           </p>
 
           <hr className="border-[#2a2a2a] my-8" />
+
+          {/* Colorway */}
+          <p
+            className="mb-4 uppercase tracking-[0.22em]"
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: '9px', color: 'rgba(245,240,232,0.4)' }}
+          >
+            COLOR — <span style={{ color: '#f5f0e8' }}>{selectedColorway.toUpperCase()}</span>
+          </p>
+          <div className="flex items-center gap-3 mb-8">
+            {COLORWAYS.map(cw => (
+              <button
+                key={cw}
+                onClick={() => setSelectedColorway(cw)}
+                title={cw.toUpperCase()}
+                style={{
+                  width: 22,
+                  height: 22,
+                  borderRadius: '50%',
+                  background: cw === 'black' ? '#111' : '#f472b6',
+                  border: selectedColorway === cw ? '2px solid #fff3af' : '2px solid rgba(245,240,232,0.25)',
+                  outline: selectedColorway === cw ? '1px solid #fff3af' : 'none',
+                  outlineOffset: 2,
+                  cursor: 'pointer',
+                  transition: 'border 0.2s',
+                }}
+              />
+            ))}
+          </div>
 
           {/* Size */}
           <p

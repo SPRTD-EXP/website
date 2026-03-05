@@ -23,6 +23,7 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: "SPRTD",
   description: "More than a brand. A movement.",
+  icons: { icon: '/logoWeb.svg' },
 };
 
 export default function RootLayout({

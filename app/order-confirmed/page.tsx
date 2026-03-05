@@ -18,7 +18,7 @@ export default function OrderConfirmed() {
       <Navbar />
 
       <div
-        className="flex flex-col items-start px-16 pt-40 pb-24"
+        className="flex flex-col items-start px-6 pt-28 pb-16 md:px-16 md:pt-40 md:pb-24"
         style={{ animation: 'fadeInUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s both' }}
       >
         <p
@@ -29,7 +29,7 @@ export default function OrderConfirmed() {
         </p>
         <h1
           className="text-[#fffeca] uppercase mb-6"
-          style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: '48px', letterSpacing: '4px', lineHeight: 1.1 }}
+          style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: 'clamp(32px, 8vw, 48px)', letterSpacing: '4px', lineHeight: 1.1 }}
         >
           THANK YOU.
         </h1>

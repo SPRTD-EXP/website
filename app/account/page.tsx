@@ -37,12 +37,12 @@ export default function AccountPage() {
       <Navbar />
 
       <div
-        className="pt-32 px-16 pb-24 max-w-2xl"
+        className="pt-24 px-6 pb-16 md:pt-32 md:px-16 md:pb-24 max-w-2xl"
         style={{ animation: 'fadeInUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s both' }}
       >
         <h1
           className="text-[#fffeca] uppercase tracking-[6px]"
-          style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: '56px' }}
+          style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: 'clamp(36px, 8vw, 56px)' }}
         >
           ACCOUNT
         </h1>

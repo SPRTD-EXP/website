@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Lenis from 'lenis';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -55,6 +55,41 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [introGone, setIntroGone] = useState(false);
+  const [videoUrls, setVideoUrls] = useState<string[]>([]);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const preloadRef = useRef<HTMLVideoElement>(null);
+  const idxRef = useRef(0);
+
+  useEffect(() => {
+    fetch('/api/hero-vids')
+      .then(r => r.json())
+      .then(({ urls }) => { if (urls?.length > 0) setVideoUrls(urls); });
+  }, []);
+
+  useEffect(() => {
+    if (videoUrls.length === 0 || !videoRef.current) return;
+    idxRef.current = 0;
+    videoRef.current.src = videoUrls[0];
+    videoRef.current.load();
+    videoRef.current.play().catch(() => {});
+    if (preloadRef.current && videoUrls.length > 1) {
+      preloadRef.current.src = videoUrls[1];
+      preloadRef.current.load();
+    }
+  }, [videoUrls]);
+
+  function handleVideoEnded() {
+    if (!videoRef.current || videoUrls.length <= 1) return;
+    idxRef.current = (idxRef.current + 1) % videoUrls.length;
+    videoRef.current.src = videoUrls[idxRef.current];
+    videoRef.current.load();
+    videoRef.current.play().catch(() => {});
+    if (preloadRef.current) {
+      const afterNext = (idxRef.current + 1) % videoUrls.length;
+      preloadRef.current.src = videoUrls[afterNext];
+      preloadRef.current.load();
+    }
+  }
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -98,12 +133,13 @@ export default function Home() {
       {/* Hero — full-bleed */}
       <section className="relative h-screen overflow-hidden">
 
-        {/* Video — full bleed */}
+        {/* Main video */}
         <video
+          ref={videoRef}
           autoPlay
           muted
-          loop
           playsInline
+          onEnded={handleVideoEnded}
           style={{
             position: 'absolute',
             inset: 0,
@@ -114,9 +150,9 @@ export default function Home() {
             opacity: 0.7,
             filter: 'grayscale(1) sepia(0.9) saturate(1.3)',
           }}
-        >
-          <source src="/FINAL KICK_3 (online-video-cutter.com).mp4" type="video/mp4" />
-        </video>
+        />
+        {/* Hidden preload for next video */}
+        <video ref={preloadRef} muted preload="auto" style={{ display: 'none' }} />
 
         {/* Subtle dark vignette at bottom */}
         <div
@@ -156,17 +192,17 @@ export default function Home() {
       </section>
 
       {/* Mission Section */}
-      <section className="py-24 px-8">
-        <div className="max-w-[500px] ml-[20%]">
+      <section className="py-16 px-6 md:py-24 md:px-8">
+        <div className="max-w-[500px] md:ml-[20%]">
           <h2
             className="text-[#fffeca] uppercase mb-4"
-            style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: '40px' }}
+            style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: 'clamp(28px, 6vw, 40px)' }}
           >
             DRIVEN BY PURPOSE,
           </h2>
           <p
             className="text-[#f5f0e8]"
-            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: '27px', lineHeight: 1.4 }}
+            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: 'clamp(18px, 4.5vw, 27px)', lineHeight: 1.4 }}
           >
             SPRTD is the foundation connecting individuals, businesses, and communities across every walk of life.
           </p>
@@ -174,8 +210,8 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-8">
-        <div className="flex items-center justify-center gap-[120px]">
+      <footer className="py-10 px-6 md:py-12 md:px-8">
+        <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center sm:gap-12 lg:gap-[120px]">
           <Link
             href="/contact"
             className="text-[#f5f0e8] text-sm tracking-widest uppercase hover:text-[#fff3af] transition-colors"

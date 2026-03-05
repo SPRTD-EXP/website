@@ -63,77 +63,43 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   async function syncCartToSupabase(userId: string) {
-    // Load existing DB cart
-    const { data: dbItems } = await supabase
+    const { data: dbItems, error } = await supabase
       .from('cart_items')
       .select('*, products(id, slug, name, price_cents)')
       .eq('user_id', userId);
 
-    // Build merged map (local takes precedence on qty)
-    const merged = new Map<string, CartItem>();
+    // If the query failed, don't touch local state
+    if (error) return;
 
-    // Add DB items first
-    if (dbItems) {
-      for (const row of dbItems) {
+    if (dbItems && dbItems.length > 0) {
+      // DB is source of truth — load it and overwrite local
+      const dbCart = dbItems.map(row => {
         const p = row.products as { id: number; slug: string; name: string; price_cents: number };
-        const key = `${p.id}_${row.size}`;
-        merged.set(key, {
-          productId: p.id,
-          slug: p.slug,
-          name: p.name,
-          priceCents: p.price_cents,
-          size: row.size,
-          quantity: row.quantity,
-        });
-      }
+        return { productId: p.id, slug: p.slug, name: p.name, priceCents: p.price_cents, size: row.size, quantity: row.quantity };
+      });
+      setItems(dbCart);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dbCart));
     }
-
-    // Overlay local items (upsert quantity)
-    for (const item of items) {
-      const key = `${item.productId}_${item.size}`;
-      const existing = merged.get(key);
-      merged.set(key, existing
-        ? { ...item, quantity: existing.quantity + item.quantity }
-        : item
-      );
-    }
-
-    const mergedItems = Array.from(merged.values());
-
-    // Upsert all to Supabase
-    if (mergedItems.length > 0) {
-      await supabase.from('cart_items').upsert(
-        mergedItems.map(i => ({
-          user_id: userId,
-          product_id: i.productId,
-          size: i.size,
-          quantity: i.quantity,
-        })),
-        { onConflict: 'user_id,product_id,size' }
-      );
-    }
-
-    setItems(mergedItems);
+    // DB empty — leave local state alone so localStorage keeps persisting
   }
 
   function addItem(item: Omit<CartItem, 'quantity'>) {
     setItems(prev => {
       const idx = prev.findIndex(i => i.productId === item.productId && i.size === item.size);
+      const newQty = idx >= 0 ? prev[idx].quantity + 1 : 1;
+      if (user) {
+        supabase.from('cart_items').upsert(
+          { user_id: user.id, product_id: item.productId, size: item.size, quantity: newQty },
+          { onConflict: 'user_id,product_id,size' }
+        );
+      }
       if (idx >= 0) {
         const next = [...prev];
-        next[idx] = { ...next[idx], quantity: next[idx].quantity + 1 };
+        next[idx] = { ...next[idx], quantity: newQty };
         return next;
       }
       return [...prev, { ...item, quantity: 1 }];
     });
-
-    // Persist to Supabase if logged in
-    if (user) {
-      supabase.from('cart_items').upsert(
-        { user_id: user.id, product_id: item.productId, size: item.size, quantity: 1 },
-        { onConflict: 'user_id,product_id,size' }
-      );
-    }
   }
 
   function removeItem(productId: number, size: string) {

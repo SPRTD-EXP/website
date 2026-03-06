@@ -11,7 +11,6 @@ type Props = {
 };
 
 const inputStyle: React.CSSProperties = {
-  fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
   fontWeight: 300,
   fontSize: '11px',
   letterSpacing: '0.12em',
@@ -66,13 +65,13 @@ export default function LoginModal({ onClose }: Props) {
 
       {/* Panel */}
       <div
-        className="fixed z-[201] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-[#111] border border-[#2a2a2a] px-10 py-10"
+        className="fixed z-[201] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-background border border-border px-10 py-10"
         style={{ animation: 'fadeInUp 0.35s cubic-bezier(0.16,1,0.3,1) both' }}
       >
         {/* Close */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-5 text-[#f5f0e8]/30 hover:text-[#f5f0e8] transition-colors"
+          className="absolute top-4 right-5 text-foreground/30 hover:text-foreground transition-colors"
           style={{ fontSize: '18px', lineHeight: 1 }}
         >
           ×
@@ -86,15 +85,14 @@ export default function LoginModal({ onClose }: Props) {
               onClick={() => { setMode(m); setError(''); setSuccess(''); }}
               className="uppercase relative transition-colors"
               style={{
-                fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
                 fontWeight: 300,
                 fontSize: '10px',
                 letterSpacing: '0.22em',
-                color: mode === m ? '#fff3af' : 'rgba(245,240,232,0.35)',
+                color: mode === m ? '#fff3af' : '#f5f0e8',
               }}
             >
               {m === 'signin' ? 'SIGN IN' : 'CREATE ACCOUNT'}
-              {mode === m && <span className="absolute -bottom-1 left-0 right-0 h-px bg-[#fff3af]" />}
+              {mode === m && <span className="absolute -bottom-1 left-0 right-0 h-px bg-gold" />}
             </button>
           ))}
         </div>
@@ -106,7 +104,7 @@ export default function LoginModal({ onClose }: Props) {
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 uppercase placeholder:text-[#f5f0e8]/20"
+            className="w-full px-4 py-3 uppercase placeholder:text-foreground/20"
             style={inputStyle}
           />
           <input
@@ -115,19 +113,19 @@ export default function LoginModal({ onClose }: Props) {
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-3 uppercase placeholder:text-[#f5f0e8]/20"
+            className="w-full px-4 py-3 uppercase placeholder:text-foreground/20"
             style={inputStyle}
           />
 
           {error && (
             <p className="text-[#ff6b6b] uppercase tracking-[0.15em]"
-              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: '9px' }}>
+              style={{ fontWeight: 300, fontSize: '9px' }}>
               {error}
             </p>
           )}
           {success && (
             <p className="text-[#b8f5a0] uppercase tracking-[0.15em]"
-              style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: '9px' }}>
+              style={{ fontWeight: 300, fontSize: '9px' }}>
               {success}
             </p>
           )}
@@ -150,14 +148,14 @@ export default function LoginModal({ onClose }: Props) {
         </form>
 
         <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 h-px bg-[#2a2a2a]" />
+          <div className="flex-1 h-px bg-border" />
           <span
-            className="text-[#f5f0e8]/20 uppercase tracking-[0.2em]"
-            style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: '8px' }}
+            className="text-foreground/20 uppercase tracking-[0.2em]"
+            style={{ fontWeight: 300, fontSize: '8px' }}
           >
             OR
           </span>
-          <div className="flex-1 h-px bg-[#2a2a2a]" />
+          <div className="flex-1 h-px bg-border" />
         </div>
 
         <button

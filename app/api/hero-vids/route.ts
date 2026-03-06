@@ -17,5 +17,7 @@ export async function GET() {
     .filter(f => /\.(mp4|mov|webm)$/i.test(f.name))
     .map(f => supabase.storage.from('HERO VIDS').getPublicUrl(f.name).data.publicUrl);
 
-  return NextResponse.json({ urls });
+  return NextResponse.json({ urls }, {
+    headers: { 'Cache-Control': 'public, max-age=3600, stale-while-revalidate=7200' },
+  });
 }

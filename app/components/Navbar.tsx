@@ -22,9 +22,9 @@ function CartIcon() {
 function Hamburger({ open }: { open: boolean }) {
   return (
     <div className="flex flex-col justify-center gap-[5px] w-5">
-      <span className={`block h-px bg-[#f5f0e8] transition-all duration-300 origin-center ${open ? 'rotate-45 translate-y-[6px]' : ''}`} />
-      <span className={`block h-px bg-[#f5f0e8] transition-all duration-300 ${open ? 'opacity-0 scale-x-0' : ''}`} />
-      <span className={`block h-px bg-[#f5f0e8] transition-all duration-300 origin-center ${open ? '-rotate-45 -translate-y-[6px]' : ''}`} />
+      <span className={`block h-px bg-foreground transition-all duration-300 origin-center ${open ? 'rotate-45 translate-y-[6px]' : ''}`} />
+      <span className={`block h-px bg-foreground transition-all duration-300 ${open ? 'opacity-0 scale-x-0' : ''}`} />
+      <span className={`block h-px bg-foreground transition-all duration-300 origin-center ${open ? '-rotate-45 -translate-y-[6px]' : ''}`} />
     </div>
   );
 }
@@ -33,7 +33,7 @@ const allLinks = [
   { href: '/movement', label: 'MOVEMENT' },
   { href: '/shop',     label: 'SHOP' },
   { href: '/about',    label: 'ABOUT' },
-  { href: '/apps',     label: 'APPS' },
+  { href: '/solutions',     label: 'SOLUTIONS' },
 ] as const;
 
 const leftLinks  = allLinks.slice(0, 2);
@@ -88,14 +88,14 @@ export default function Navbar({ animated = false }: NavbarProps) {
 
   const linkClass = (href: string) =>
     `text-[10.5px] tracking-[0.18em] uppercase transition-colors ${
-      pathname === href ? 'text-[#fff3af]' : 'text-[#f5f0e8] hover:text-[#fff3af]'
+      pathname === href ? 'text-gold' : 'text-foreground hover:text-gold'
     }`;
 
   return (
     <>
       <nav
         className={`fixed top-0 left-0 right-0 z-50 h-14 border-b border-[#1e1e1e] transition-colors duration-300 ${
-          scrolled || menuOpen ? 'bg-[#111]' : 'bg-[#111]/80 backdrop-blur-sm'
+          scrolled || menuOpen ? 'bg-background' : 'bg-background/80 backdrop-blur-sm'
         }`}
         style={animStyle}
       >
@@ -103,7 +103,7 @@ export default function Navbar({ animated = false }: NavbarProps) {
 
           {/* Mobile: hamburger left */}
           <button
-            className="lg:hidden text-[#f5f0e8] z-10"
+            className="lg:hidden text-foreground z-10"
             onClick={() => setMenuOpen(o => !o)}
             aria-label="Menu"
           >
@@ -120,10 +120,10 @@ export default function Navbar({ animated = false }: NavbarProps) {
             ))}
           </div>
 
-          {/* Center logo */}
-          <Link href="/" className="absolute left-1/2 -translate-x-1/2">
+          {/* Center logo — plain <a> so clicking it always reloads even on home */}
+          <a href="/" className="absolute left-1/2 -translate-x-1/2">
             <Image src="/logoWeb.svg" alt="SPRTD" width={34} height={34} priority />
-          </Link>
+          </a>
 
           {/* Right: desktop links + login/cart; mobile: login + cart */}
           <div className="flex flex-1 items-center justify-end gap-5 lg:gap-9">
@@ -146,7 +146,7 @@ export default function Navbar({ animated = false }: NavbarProps) {
             ) : (
               <button
                 onClick={() => setLoginOpen(true)}
-                className="text-[10.5px] tracking-[0.18em] uppercase transition-colors text-[#f5f0e8] hover:text-[#fff3af]"
+                className="text-[10.5px] tracking-[0.18em] uppercase transition-colors text-foreground hover:text-gold"
                 style={{ fontFamily: 'var(--font-montserrat), sans-serif', fontWeight: 300 }}
               >
                 LOGIN
@@ -156,12 +156,12 @@ export default function Navbar({ animated = false }: NavbarProps) {
             {/* Cart */}
             <button
               onClick={() => setCartOpen(true)}
-              className="relative text-[#f5f0e8] hover:text-[#fff3af] transition-colors"
+              className="relative text-foreground hover:text-gold transition-colors"
             >
               <CartIcon />
               {itemCount > 0 && (
                 <span
-                  className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-[#fff3af] text-[#111]"
+                  className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-gold text-background"
                   style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: '8px' }}
                 >
                   {itemCount > 9 ? '9+' : itemCount}
@@ -174,7 +174,7 @@ export default function Navbar({ animated = false }: NavbarProps) {
 
       {/* Mobile menu overlay */}
       {menuOpen && (
-        <div className="fixed inset-0 z-40 bg-[#111] flex flex-col items-center justify-center gap-10 lg:hidden"
+        <div className="fixed inset-0 z-40 bg-background flex flex-col items-center justify-center gap-10 lg:hidden"
           style={{ animation: 'fadeIn 0.2s ease both' }}>
           {allLinks.map(l => (
             <Link
@@ -182,7 +182,7 @@ export default function Navbar({ animated = false }: NavbarProps) {
               href={l.href}
               onClick={() => setMenuOpen(false)}
               className={`text-2xl tracking-[0.3em] uppercase transition-colors ${
-                pathname === l.href ? 'text-[#fff3af]' : 'text-[#f5f0e8] hover:text-[#fff3af]'
+                pathname === l.href ? 'text-gold' : 'text-foreground hover:text-gold'
               }`}
               style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700 }}
             >
@@ -192,7 +192,7 @@ export default function Navbar({ animated = false }: NavbarProps) {
           {!user && (
             <button
               onClick={() => { setMenuOpen(false); setLoginOpen(true); }}
-              className="text-2xl tracking-[0.3em] uppercase text-[#f5f0e8] hover:text-[#fff3af] transition-colors"
+              className="text-2xl tracking-[0.3em] uppercase text-foreground hover:text-gold transition-colors"
               style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700 }}
             >
               LOGIN

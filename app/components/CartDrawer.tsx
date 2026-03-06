@@ -42,22 +42,22 @@ export default function CartDrawer({ onClose }: Props) {
 
       {/* Drawer */}
       <div
-        className="fixed top-0 right-0 z-[201] h-full w-full max-w-md bg-[#111] border-l border-[#2a2a2a] flex flex-col"
+        className="fixed top-0 right-0 z-[201] h-full w-full max-w-md bg-background border-l border-border flex flex-col"
         style={{ animation: 'slideInRight 0.35s cubic-bezier(0.16,1,0.3,1) both' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-8 h-14 border-b border-[#2a2a2a] shrink-0">
+        <div className="flex items-center justify-between px-8 h-14 border-b border-border shrink-0">
           <div className="flex items-baseline gap-3">
             <p
-              className="text-[#fffeca] uppercase tracking-[4px]"
-              style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: '13px' }}
+              className="heading  tracking-[0.22em]"
+              style={{ fontSize: '13px' }}
             >
               CART
             </p>
             {itemCount > 0 && (
               <p
-                className="text-[#f5f0e8]/40 uppercase tracking-[2px]"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: '9px' }}
+                className="text-foreground/40 uppercase  tracking-[0.22em]"
+                style={{ fontWeight: 300, fontSize: '9px' }}
               >
                 {itemCount} ITEM{itemCount !== 1 ? 'S' : ''}
               </p>
@@ -65,7 +65,7 @@ export default function CartDrawer({ onClose }: Props) {
           </div>
           <button
             onClick={onClose}
-            className="text-[#f5f0e8]/30 hover:text-[#f5f0e8] transition-colors"
+            className="text-foreground/30 hover:text-foreground transition-colors"
             style={{ fontSize: '20px', lineHeight: 1 }}
           >
             ×
@@ -77,16 +77,16 @@ export default function CartDrawer({ onClose }: Props) {
           {items.length === 0 ? (
             <div className="py-16 flex flex-col items-start gap-5">
               <p
-                className="text-[#f5f0e8]/30 uppercase tracking-[0.3em]"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: '10px' }}
+                className="text-foreground/30 uppercase tracking-[0.3em]"
+                style={{ fontWeight: 300, fontSize: '10px' }}
               >
                 YOUR CART IS EMPTY
               </p>
               <Link
                 href="/shop"
                 onClick={onClose}
-                className="text-[#fff3af] uppercase tracking-[0.22em] hover:opacity-70 transition-opacity"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: '9px' }}
+                className="text-gold uppercase tracking-[0.22em] hover:opacity-70 transition-opacity"
+                style={{ fontWeight: 300, fontSize: '9px' }}
               >
                 ← SHOP
               </Link>
@@ -96,19 +96,19 @@ export default function CartDrawer({ onClose }: Props) {
               {items.map(item => (
                 <div
                   key={`${item.productId}_${item.size}`}
-                  className="flex items-center justify-between py-5 border-b border-[#2a2a2a]"
+                  className="flex items-center justify-between py-5 border-b border-border"
                 >
                   {/* Product info */}
                   <div className="flex flex-col gap-1">
                     <p
-                      className="text-white uppercase tracking-[0.18em]"
+                      className="uppercase text-white tracking-[0.18em]"
                       style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: '10px' }}
                     >
                       {item.name}
                     </p>
                     <p
-                      className="text-[#f5f0e8]/40 uppercase tracking-[0.15em]"
-                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: '8px' }}
+                      className="text-foreground/40 uppercase tracking-[0.15em]"
+                      style={{ fontWeight: 300, fontSize: '8px' }}
                     >
                       SIZE: {item.size}
                     </p>
@@ -119,20 +119,20 @@ export default function CartDrawer({ onClose }: Props) {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => updateQuantity(item.productId, item.size, item.quantity - 1)}
-                        className="w-5 h-5 flex items-center justify-center text-[#f5f0e8]/40 hover:text-[#f5f0e8] transition-colors"
+                        className="w-5 h-5 flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors"
                         style={{ fontSize: '13px' }}
                       >
                         −
                       </button>
                       <span
-                        className="text-[#f5f0e8] w-3 text-center"
-                        style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: '10px' }}
+                        className="text-foreground w-3 text-center"
+                        style={{ fontWeight: 300, fontSize: '10px' }}
                       >
                         {item.quantity}
                       </span>
                       <button
                         onClick={() => updateQuantity(item.productId, item.size, item.quantity + 1)}
-                        className="w-5 h-5 flex items-center justify-center text-[#f5f0e8]/40 hover:text-[#f5f0e8] transition-colors"
+                        className="w-5 h-5 flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors"
                         style={{ fontSize: '13px' }}
                       >
                         +
@@ -140,15 +140,15 @@ export default function CartDrawer({ onClose }: Props) {
                     </div>
 
                     <p
-                      className="text-[#fff3af] w-14 text-right"
-                      style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: '10px', letterSpacing: '1px' }}
+                      className="text-gold w-14 text-right"
+                      style={{ fontWeight: 300, fontSize: '10px', letterSpacing: '1px' }}
                     >
                       {formatPrice(item.priceCents * item.quantity)}
                     </p>
 
                     <button
                       onClick={() => removeItem(item.productId, item.size)}
-                      className="text-[#f5f0e8]/20 hover:text-[#f5f0e8]/60 transition-colors"
+                      className="text-foreground/20 hover:text-foreground/60 transition-colors"
                       style={{ fontSize: '15px' }}
                     >
                       ×
@@ -162,17 +162,17 @@ export default function CartDrawer({ onClose }: Props) {
 
         {/* Footer — subtotal + CTA */}
         {items.length > 0 && (
-          <div className="shrink-0 px-8 pb-8 pt-4 border-t border-[#2a2a2a]">
+          <div className="shrink-0 px-8 pb-8 pt-4 border-t border-border">
             <div className="flex items-center justify-between mb-6">
               <p
-                className="text-[#f5f0e8]/40 uppercase tracking-[0.22em]"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: '9px' }}
+                className="text-foreground/40 uppercase tracking-[0.22em]"
+                style={{ fontWeight: 300, fontSize: '9px' }}
               >
                 SUBTOTAL
               </p>
               <p
-                className="text-[#fff3af]"
-                style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontWeight: 300, fontSize: '13px', letterSpacing: '2px' }}
+                className="text-gold"
+                style={{ fontWeight: 300, fontSize: '13px', letterSpacing: '2px' }}
               >
                 {formatPrice(subtotalCents)}
               </p>

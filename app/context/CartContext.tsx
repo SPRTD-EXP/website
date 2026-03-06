@@ -33,54 +33,76 @@ const CartContext = createContext<CartContextType>({
 
 const STORAGE_KEY = 'sprtd_cart';
 
+function getLocalItems(): CartItem[] {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch { return []; }
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const { user } = useAuth();
   const prevUserRef = useRef<string | null>(null);
 
-  // Load from localStorage on mount
+  // On mount: load localStorage (guest state, before auth resolves)
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setItems(JSON.parse(stored));
-    } catch {}
+    setItems(getLocalItems());
   }, []);
 
-  // Persist to localStorage on every change
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }, [items]);
-
-  // Sync to Supabase when user logs in
+  // Handle login / logout transitions
   useEffect(() => {
     const prevId = prevUserRef.current;
     const currId = user?.id ?? null;
     prevUserRef.current = currId;
 
     if (currId && !prevId) {
-      syncCartToSupabase(currId);
+      // Just logged in — load from DB, push local items up if DB is empty
+      handleLogin(currId);
+    } else if (!currId && prevId) {
+      // Just logged out — clear cart
+      setItems([]);
+      localStorage.removeItem(STORAGE_KEY);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  async function syncCartToSupabase(userId: string) {
+  // Persist to localStorage only when guest
+  useEffect(() => {
+    if (!user) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    }
+  }, [items, user]);
+
+  async function handleLogin(userId: string) {
+    const localItems = getLocalItems();
+
     const { data: dbItems, error } = await supabase
       .from('cart_items')
       .select('*, products(id, slug, name, price_cents)')
       .eq('user_id', userId);
 
-    // If the query failed, don't touch local state
     if (error) return;
 
     if (dbItems && dbItems.length > 0) {
-      // DB is source of truth — load it and overwrite local
+      // DB has items — use as source of truth
       const dbCart = dbItems.map(row => {
         const p = row.products as { id: number; slug: string; name: string; price_cents: number };
         return { productId: p.id, slug: p.slug, name: p.name, priceCents: p.price_cents, size: row.size, quantity: row.quantity };
       });
       setItems(dbCart);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dbCart));
+    } else if (localItems.length > 0) {
+      // DB empty — push local items up to DB
+      await Promise.all(localItems.map(item =>
+        supabase.from('cart_items').upsert(
+          { user_id: userId, product_id: item.productId, size: item.size, quantity: item.quantity },
+          { onConflict: 'user_id,product_id,size' }
+        )
+      ));
+      setItems(localItems);
+    } else {
+      setItems([]);
     }
-    // DB empty — leave local state alone so localStorage keeps persisting
   }
 
   function addItem(item: Omit<CartItem, 'quantity'>) {
@@ -129,6 +151,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   function clearCart() {
     setItems([]);
+    localStorage.removeItem(STORAGE_KEY);
     if (user) {
       supabase.from('cart_items').delete().eq('user_id', user.id);
     }

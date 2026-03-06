@@ -5,6 +5,7 @@
   --foreground: #f5f0e8;
   --gold: #fff3af;
   --gold-light: #fffeca;
+  --border: #2a2a2a;
 }
 
 @theme inline {
@@ -12,15 +13,60 @@
   --color-foreground: var(--foreground);
   --color-gold: var(--gold);
   --color-gold-light: var(--gold-light);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-light: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --color-border: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+}
+
+/* ── Typography utilities ── */
+@layer utilities {
+  /* Small eyebrow / label above headings — gold, 9px, wide tracking */
+  .label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 300;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  /* Foreground body copy — light weight, relaxed leading */
+  .body-copy {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    line-height: 1.7;
+    letter-spacing: 0.04em;
+    color: var(--foreground);
+  }
+
+  /* Bold uppercase Helvetica — used for headings and CTAs */
+  .heading {
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--gold-light);
+  }
+
+  /* Ghost outline button — cream border/text, turns gold on hover */
+  .discover-btn {
+    font-weight: 300;
+    font-size: 10px;
+    color: #f5f0e8;
+    border: 1px solid rgba(245, 240, 232, 0.55);
+    padding: 11px 28px;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+  .discover-btn:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+
 }
 
 @keyframes fadeIn {
@@ -41,4 +87,9 @@ body {
 @keyframes slideInRight {
   from { transform: translateX(100%); }
   to   { transform: translateX(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-28px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
